@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://asif-kalam.vercel.app/sitemap.xml
