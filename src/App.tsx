@@ -22,7 +22,129 @@ function Navbar() {
 
 function SystemDiagram({ compact = false }: { compact?: boolean }) { const labels = compact ? ['USER', 'CloudFront', 'Application', 'EC2  ·  Lambda  ·  API', 'S3  ·  DynamoDB'] : ['Internet', 'CloudFront', 'API / App', 'EC2  ·  Lambda  ·  API Gateway', 'S3  ·  DynamoDB', 'CloudWatch']; return <div className="system-diagram" aria-label="Cloud architecture diagram">{labels.map((x,i) => <div key={x}><motion.span className="node" initial={{opacity:0, scale:.92}} animate={{opacity:1, scale:1}} transition={{delay:i*.12}}>{x}</motion.span>{i < labels.length-1 && <i className="connector"/>}</div>)}</div> }
 
-function Hero() { return <section id="home" className="hero"><div className="hero-copy"><motion.p className="eyebrow" {...reveal}>CLOUD ENGINEER <b>•</b> SOFTWARE DEVELOPER</motion.p><motion.h1 {...reveal} transition={{duration:.6, delay:.08}}>Building scalable software and <em>cloud infrastructure.</em></motion.h1><motion.p className="lede" {...reveal} transition={{duration:.6, delay:.16}}>I'm Asif Kalam, a Computer Science graduate focused on AWS cloud engineering, software development, DevOps, and building reliable applications.</motion.p><motion.div className="actions" {...reveal}><a href="#projects" className="button primary">View projects <ArrowUpRight size={17}/></a><a href="/resume.pdf" download className="button">Download resume <Download size={16}/></a></motion.div><motion.div className="socials" {...reveal}><External href={githubUrl}><GitFork/> GitHub</External><External href={isConfigured(profile.linkedin) ? profile.linkedin : undefined}><Link/> LinkedIn</External><External href={isConfigured(profile.email) ? `mailto:${profile.email}` : undefined}><Mail/> Email</External></motion.div></div><motion.div className="hero-visual" initial={{opacity:0,x:30}} animate={{opacity:1,x:0}} transition={{duration:.8}}><div className="visual-head"><Cloud size={19}/> SYSTEM OVERVIEW <span>LIVE</span></div><SystemDiagram compact/></motion.div></section> }
+function Hero() {
+  return (
+    <section id="home" className="hero">
+
+      {/* LEFT SIDE */}
+      <div className="hero-copy">
+
+        <motion.p
+          className="eyebrow"
+          {...reveal}
+        >
+          CLOUD ENGINEER <b>•</b> SOFTWARE DEVELOPER
+        </motion.p>
+
+        <motion.h1
+          {...reveal}
+          transition={{ duration: 0.6, delay: 0.08 }}
+        >
+          Building scalable software and{' '}
+          <em>cloud infrastructure.</em>
+        </motion.h1>
+
+        <motion.p
+          className="lede"
+          {...reveal}
+          transition={{ duration: 0.6, delay: 0.16 }}
+        >
+          I'm Asif Kalam, a Computer Science graduate focused on AWS cloud
+          engineering, software development, DevOps, and building reliable
+          applications.
+        </motion.p>
+
+        <motion.div
+          className="actions"
+          {...reveal}
+        >
+          <a href="#projects" className="button primary">
+            View projects <ArrowUpRight size={17} />
+          </a>
+
+          <a
+            href="/resume.pdf"
+            download
+            className="button"
+          >
+            Download resume <Download size={16} />
+          </a>
+        </motion.div>
+
+        <motion.div
+          className="socials"
+          {...reveal}
+        >
+          <External href={githubUrl}>
+            <GitFork /> GitHub
+          </External>
+
+          <External
+            href={
+              isConfigured(profile.linkedin)
+                ? profile.linkedin
+                : undefined
+            }
+          >
+            <Link /> LinkedIn
+          </External>
+
+          <External
+            href={
+              isConfigured(profile.email)
+                ? `mailto:${profile.email}`
+                : undefined
+            }
+          >
+            <Mail /> Email
+          </External>
+        </motion.div>
+
+      </div>
+
+
+      {/* RIGHT SIDE - PROFILE */}
+      <motion.div
+        className="hero-photo-section"
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 0.8 }}
+      >
+
+        <div className="profile-orbit-container">
+
+          <div className="profile-glow"></div>
+
+          {/* Rotating ring 1 */}
+          <div className="orbit orbit-one">
+            <span className="orbit-dot"></span>
+          </div>
+
+          {/* Rotating ring 2 */}
+          <div className="orbit orbit-two">
+            <span className="orbit-dot"></span>
+          </div>
+
+          {/* Your image */}
+          <div className="profile-image-wrapper">
+            <img
+              src="/profile.jpg"
+              alt="Asif Kalam"
+              className="profile-image"
+            />
+          </div>
+
+        </div>
+
+        <p className="profile-caption">
+          CLOUD ENGINEER • AWS • DEVOPS
+        </p>
+
+      </motion.div>
+
+    </section>
+  )
+}
 
 function SectionTitle({ kicker, children }: { kicker: string, children: React.ReactNode }) { return <motion.div className="section-title" {...reveal}><p className="eyebrow">{kicker}</p><h2>{children}</h2></motion.div> }
 function About() { return <section id="about"><SectionTitle kicker="01 / ABOUT">A systems-minded developer, from interface to infrastructure.</SectionTitle><div className="about-grid"><motion.p className="prose" {...reveal}>I am a B.Tech (Hons) Computer Science and Engineering graduate from Galgotias University, specializing in Cloud Computing and Virtualisation. I build cloud-connected, service-based applications with Java, Python, Node.js, and AWS, grounded in REST API design, backend development, and secure infrastructure.<br/><br/>I enjoy understanding how systems work behind the interface — from frontend applications to APIs, cloud infrastructure, deployment, monitoring, and scalability.</motion.p><motion.aside className="philosophy" {...reveal}><span>ENGINEERING PHILOSOPHY</span><p>“Build thoughtfully. Make operations visible. Keep systems easy to reason about.”</p><div>Career direction <strong>Cloud engineering · Software development · DevOps</strong></div></motion.aside></div></section> }

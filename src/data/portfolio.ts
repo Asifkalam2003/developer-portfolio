@@ -2,7 +2,7 @@ export const profile = {
   name: 'Asif Kalam',
   roles: 'Cloud Engineer • Software Developer',
   email: import.meta.env.VITE_CONTACT_EMAIL || 'asifkalam.2003@gmail.com',
-  github: import.meta.env.VITE_GITHUB_USERNAME || 'YOUR_GITHUB_USERNAME',
+  github: import.meta.env.VITE_GITHUB_USERNAME || 'Asifkalam2003',
   linkedin: import.meta.env.VITE_LINKEDIN_URL || 'https://www.linkedin.com/in/asif-kalam-aa4b4924b/',
   naukri: import.meta.env.VITE_NAUKRI_URL || 'https://www.naukri.com/mnjuser/profile?id=&altresid',
 }
