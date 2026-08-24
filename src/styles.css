@@ -1350,13 +1350,23 @@ textarea:focus {
 }
 
 .form-note {
-  font-size: 11px;
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 2px 0 0;
+}
 
-  line-height: 1.5;
+.form-note.success {
+  color: #7ee2a8;
+}
 
-  color: #acbad0;
+.form-note.error {
+  color: #ff9a9a;
+}
 
-  margin: 0;
+form .button:disabled {
+  opacity: 0.7;
+  cursor: wait;
+  transform: none;
 }
 
 
