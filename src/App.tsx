@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import emailjs from '@emailjs/browser'
 import { AnimatePresence, motion, useScroll } from 'framer-motion'
 import {
   ArrowUpRight,
@@ -11,10 +12,9 @@ import {
   Mail,
   Menu,
   Server,
+  Terminal,
   X,
 } from 'lucide-react'
-
-import emailjs from '@emailjs/browser'
 
 import {
   architectureNodes,
@@ -35,7 +35,7 @@ const nav = [
   'Contact',
 ]
 
-const sectionIds = nav.map((x) => x.toLowerCase())
+const sectionIds = nav.map((item) => item.toLowerCase())
 
 const reveal = {
   initial: { opacity: 0, y: 22 },
@@ -44,7 +44,10 @@ const reveal = {
   transition: { duration: 0.55 },
 }
 
-const isConfigured = (value: string) => !value.startsWith('YOUR_')
+const isConfigured = (value?: string) =>
+  Boolean(value) &&
+  !value.startsWith('YOUR_') &&
+  !value.includes('PASTE_')
 
 const githubUrl = isConfigured(profile.github)
   ? `https://github.com/${profile.github}`
@@ -59,7 +62,18 @@ function External({
   children: React.ReactNode
   className?: string
 }) {
-  return href ? (
+  if (!href) {
+    return (
+      <span
+        className={`${className} disabled`}
+        title="Configure this value in your environment file"
+      >
+        {children}
+      </span>
+    )
+  }
+
+  return (
     <a
       className={className}
       href={href}
@@ -68,13 +82,6 @@ function External({
     >
       {children}
     </a>
-  ) : (
-    <span
-      className={`${className} disabled`}
-      title="Configure this in .env"
-    >
-      {children}
-    </span>
   )
 }
 
@@ -85,22 +92,18 @@ function Navbar() {
   useEffect(() => {
     const handler = () => {
       for (const id of sectionIds) {
-        const element = document.getElementById(id)
+        const section = document.getElementById(id)
 
-        if (
-          element &&
-          element.getBoundingClientRect().top < 170
-        ) {
+        if (section && section.getBoundingClientRect().top < 170) {
           setActive(id)
         }
       }
     }
 
-    addEventListener('scroll', handler)
-
+    window.addEventListener('scroll', handler)
     handler()
 
-    return () => removeEventListener('scroll', handler)
+    return () => window.removeEventListener('scroll', handler)
   }, [])
 
   const links = (
@@ -108,13 +111,13 @@ function Navbar() {
       {nav.map((label) => (
         <a
           key={label}
-          onClick={() => setOpen(false)}
+          href={`#${label.toLowerCase()}`}
           className={
             active === label.toLowerCase()
               ? 'active'
               : ''
           }
-          href={`#${label.toLowerCase()}`}
+          onClick={() => setOpen(false)}
         >
           {label}
         </a>
@@ -160,55 +163,185 @@ function Navbar() {
 }
 
 function SystemDiagram({
-  compact = false,
+  projectName,
 }: {
-  compact?: boolean
+  projectName?: string
 }) {
-  const labels = compact
-    ? [
-        'USER',
-        'CloudFront',
-        'Application',
-        'EC2 · Lambda · API',
-        'S3 · DynamoDB',
-      ]
-    : [
-        'Internet',
-        'CloudFront',
-        'API / App',
-        'EC2 · Lambda · API Gateway',
-        'S3 · DynamoDB',
-        'CloudWatch',
-      ]
+  if (projectName === 'Cloud-Based E-Learning Platform') {
+    return (
+      <div className="elearning-diagram">
+        <div className="diagram-node">
+          USER
+        </div>
+
+        <div className="diagram-arrow">↓</div>
+
+        <div className="diagram-node">
+          CloudFront
+        </div>
+
+        <div className="diagram-arrow">↓</div>
+
+        <div className="diagram-node">
+          React.js Frontend
+        </div>
+
+        <div className="diagram-connector-label">
+          HTTPS / REST API / Socket.io
+        </div>
+
+        <div className="diagram-arrow">↓</div>
+
+        <div className="vpc-container">
+          <div className="vpc-title">
+            AWS VPC
+          </div>
+
+          <div className="ec2-node">
+            <strong>Amazon EC2</strong>
+
+            <span>Node.js + Express</span>
+            <span>REST APIs</span>
+            <span>JWT Authentication</span>
+            <span>Socket.io</span>
+          </div>
+        </div>
+
+        <div className="diagram-arrow">↓</div>
+
+        <div className="cloud-services">
+          <div className="cloud-service">
+            <strong>MongoDB</strong>
+
+            <span>Application Data</span>
+          </div>
+
+          <div className="cloud-service">
+            <strong>Amazon S3</strong>
+
+            <span>Course Assets</span>
+          </div>
+
+          <div className="cloud-service">
+            <strong>CloudWatch</strong>
+
+            <span>Logs & Monitoring</span>
+          </div>
+        </div>
+
+        <div className="iam-section">
+          <div className="iam-line" />
+
+          <div className="iam-node">
+            <strong>IAM</strong>
+
+            <span>Roles & Permissions</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
-    <div
-      className="system-diagram"
-      aria-label="Cloud architecture diagram"
-    >
-      {labels.map((x, i) => (
-        <div key={x}>
-          <motion.span
-            className="node"
-            initial={{ opacity: 0, scale: 0.92 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: i * 0.12 }}
-          >
-            {x}
-          </motion.span>
+    <div className="system-diagram">
+      <div>
+        <div className="node">USER</div>
 
-          {i < labels.length - 1 && (
-            <i className="connector" />
-          )}
+        <span className="connector" />
+
+        <div className="node">
+          Application
         </div>
-      ))}
+
+        <span className="connector" />
+
+        <div className="node">
+          Core Services
+        </div>
+
+        <span className="connector" />
+
+        <div className="node">
+          Storage / Monitoring
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* -----------------------------------------
+   CLOUD INFRASTRUCTURE AUTOMATION DIAGRAM
+----------------------------------------- */
+
+function InfrastructureDiagram() {
+  return (
+    <div className="infra-diagram">
+      <div className="infra-node developer-node">
+        Developer
+      </div>
+
+      <div className="infra-arrow vertical-arrow">
+        ↓
+      </div>
+
+      <div className="infra-node cli-node">
+        <Terminal size={15} />
+        AWS CLI / Bash
+      </div>
+
+      <div className="infra-arrow vertical-arrow">
+        ↓
+      </div>
+
+      <div className="infra-node cloudformation-node">
+        <Cloud size={16} />
+        CloudFormation
+      </div>
+
+      <div className="infra-split">
+        <span className="split-line" />
+        <span className="split-down left" />
+        <span className="split-down center" />
+        <span className="split-down right" />
+      </div>
+
+      <div className="infra-services">
+        <div className="infra-node service-node">
+          IAM
+        </div>
+
+        <div className="infra-node service-node">
+          EC2
+        </div>
+
+        <div className="infra-node service-node">
+          S3
+        </div>
+      </div>
+
+      <div className="infra-merge">
+        <span className="merge-left" />
+        <span className="merge-right" />
+        <span className="merge-center" />
+      </div>
+
+      <div className="infra-arrow vertical-arrow">
+        ↓
+      </div>
+
+      <div className="infra-node monitoring-node">
+        CloudWatch
+      </div>
     </div>
   )
 }
 
 function Hero() {
   return (
-    <section id="home" className="hero">
+    <section
+      id="home"
+      className="hero"
+    >
       <div className="hero-copy">
         <motion.p
           className="eyebrow"
@@ -219,7 +352,10 @@ function Hero() {
 
         <motion.h1
           {...reveal}
-          transition={{ duration: 0.6, delay: 0.08 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.08,
+          }}
         >
           Building scalable software and{' '}
           <em>cloud infrastructure.</em>
@@ -228,11 +364,15 @@ function Hero() {
         <motion.p
           className="lede"
           {...reveal}
-          transition={{ duration: 0.6, delay: 0.16 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.16,
+          }}
         >
-          I'm Asif Kalam, a Computer Science graduate focused on
-          AWS cloud engineering, software development, DevOps,
-          and building reliable applications.
+          I'm Asif Kalam, a Computer Science graduate
+          focused on AWS cloud engineering, software
+          development, DevOps, and building reliable
+          applications.
         </motion.p>
 
         <motion.div
@@ -292,9 +432,17 @@ function Hero() {
 
       <motion.div
         className="hero-photo-section"
-        initial={{ opacity: 0, x: 30 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.8 }}
+        initial={{
+          opacity: 0,
+          x: 30,
+        }}
+        animate={{
+          opacity: 1,
+          x: 0,
+        }}
+        transition={{
+          duration: 0.8,
+        }}
       >
         <div className="profile-orbit-container">
           <div className="profile-glow" />
@@ -337,6 +485,7 @@ function SectionTitle({
       {...reveal}
     >
       <p className="eyebrow">{kicker}</p>
+
       <h2>{children}</h2>
     </motion.div>
   )
@@ -355,20 +504,17 @@ function About() {
           className="prose"
           {...reveal}
         >
-          I am a B.Tech (Hons) Computer Science and Engineering
-          graduate from Galgotias University, specializing in
-          Cloud Computing and Virtualisation. I build
-          cloud-connected, service-based applications with Java,
-          Python, Node.js, and AWS, grounded in REST API design,
-          backend development, and secure infrastructure.
-
+          I am a B.Tech (Hons) Computer Science and
+          Engineering graduate from Galgotias University,
+          specializing in Cloud Computing and
+          Virtualisation.
           <br />
           <br />
-
-          I enjoy understanding how systems work behind the
-          interface — from frontend applications to APIs, cloud
-          infrastructure, deployment, monitoring, and
-          scalability.
+          I build cloud-connected, service-based
+          applications with modern development
+          technologies and AWS, with a focus on backend
+          development, cloud infrastructure, deployment,
+          monitoring, and scalability.
         </motion.p>
 
         <motion.aside
@@ -378,15 +524,16 @@ function About() {
           <span>ENGINEERING PHILOSOPHY</span>
 
           <p>
-            “Build thoughtfully. Make operations visible. Keep
-            systems easy to reason about.”
+            “Build thoughtfully. Make operations visible.
+            Keep systems easy to reason about.”
           </p>
 
           <div>
             Career direction
 
             <strong>
-              Cloud engineering · Software development · DevOps
+              Cloud engineering · Software development ·
+              DevOps
             </strong>
           </div>
         </motion.aside>
@@ -399,15 +546,18 @@ function Skills() {
   return (
     <section id="skills">
       <SectionTitle kicker="02 / TOOLKIT">
-        Technology choices grounded in practical application.
+        Technology choices grounded in practical
+        application.
       </SectionTitle>
 
       <div className="skills-grid">
-        {skillGroups.map((group, i) => (
+        {skillGroups.map((group, index) => (
           <motion.article
             className="skill-card"
             {...reveal}
-            transition={{ delay: i * 0.06 }}
+            transition={{
+              delay: index * 0.06,
+            }}
             key={group.title}
           >
             <div className="card-icon">
@@ -432,7 +582,8 @@ function Experience() {
   return (
     <section id="experience">
       <SectionTitle kicker="03 / EXPERIENCE">
-        Cloud operations through hands-on infrastructure practice.
+        Cloud operations through hands-on infrastructure
+        practice.
       </SectionTitle>
 
       <motion.article
@@ -449,13 +600,12 @@ function Experience() {
           <h3>Cloud infrastructure & deployment</h3>
 
           <p>
-            Provisioned and configured 10+ EC2 instances with
-            custom VPC networking, improving provisioning time by
-            approximately 40%. Managed 15+ S3 buckets with
-            versioning and lifecycle policies, automated repeatable
-            setup across three environments with CloudFormation,
-            audited IAM roles and security groups, and monitored
-            service health through CloudWatch dashboards.
+            Provisioned and configured EC2 instances with
+            custom VPC networking. Worked with S3, IAM,
+            CloudFormation, security configurations, and
+            CloudWatch monitoring while gaining practical
+            experience with AWS infrastructure and
+            deployment workflows.
           </p>
 
           <div className="tags">
@@ -472,6 +622,78 @@ function Experience() {
     </section>
   )
 }
+function GameArchitectureDiagram() {
+  return (
+    <div
+      className="game-architecture"
+      aria-label="2048 game MVC architecture"
+    >
+      <div className="game-node user-node">
+        <strong>USER</strong>
+      </div>
+
+      <div className="game-arrow">↓</div>
+
+      <div className="game-input">
+        Keyboard / Touch
+      </div>
+
+      <div className="game-arrow">↓</div>
+
+      <div className="game-node controller-node">
+        <strong>CONTROLLER</strong>
+
+        <span>
+          Input &amp; Game Actions
+        </span>
+      </div>
+
+      <div className="game-arrow">↓</div>
+
+      <div className="game-model-wrapper">
+        <div className="game-node model-node">
+          <strong>MODEL</strong>
+
+          <ul>
+            <li>Game Board</li>
+            <li>Tile Movement</li>
+            <li>Merge Logic</li>
+            <li>Score Calculation</li>
+            <li>Win / Game Over Detection</li>
+          </ul>
+        </div>
+      </div>
+
+      <div className="game-branches">
+        <div className="game-branch">
+          <span className="branch-line" />
+
+          <div className="game-node view-node">
+            <strong>VIEW</strong>
+
+            <span>HTML/CSS UI</span>
+          </div>
+
+          <div className="game-arrow">↓</div>
+
+          <div className="game-output">
+            Updated Game Board
+          </div>
+        </div>
+
+        <div className="game-branch">
+          <span className="branch-line" />
+
+          <div className="game-node storage-node">
+            <strong>LocalStorage</strong>
+
+            <span>Save Game</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function ProjectModal({
   project,
@@ -480,6 +702,9 @@ function ProjectModal({
   project: Project
   close: () => void
 }) {
+  const is2048Project =
+    project.name.toLowerCase().includes('2048')
+
   return (
     <motion.div
       className="overlay"
@@ -506,7 +731,9 @@ function ProjectModal({
           <X />
         </button>
 
-        <p className="eyebrow">{project.eyebrow}</p>
+        <p className="eyebrow">
+          {project.eyebrow}
+        </p>
 
         <h2>{project.name}</h2>
 
@@ -525,6 +752,7 @@ function ProjectModal({
                 key={title}
               >
                 <h3>{title}</h3>
+
                 <p>{content}</p>
               </div>
             ))}
@@ -533,22 +761,35 @@ function ProjectModal({
           <aside>
             <h3>Architecture</h3>
 
-            <SystemDiagram compact />
+            {is2048Project ? (
+              <GameArchitectureDiagram />
+            ) : (
+              <SystemDiagram
+              projectName={project.name}
+              />
+            )}
 
-            <h3>Technologies</h3>
+            <h3 className="technology-heading">
+              Technologies
+            </h3>
 
             <div className="tags">
-              {[...project.stack, ...project.services].map(
-                (x) => (
-                  <span key={x}>{x}</span>
-                )
-              )}
+              {[
+                ...project.stack,
+                ...project.services,
+              ].map((technology) => (
+                <span key={technology}>
+                  {technology}
+                </span>
+              ))}
             </div>
 
             <p className="configuration">
               Repository and live demo links can be added in{' '}
-              <code>src/data/portfolio.ts</code> after they are
-              available.
+              <code>
+                src/data/portfolio.ts
+              </code>{' '}
+              after they are available.
             </p>
           </aside>
         </div>
@@ -564,20 +805,23 @@ function Projects() {
   return (
     <section id="projects">
       <SectionTitle kicker="04 / SELECTED WORK">
-        Projects designed with delivery and operations in mind.
+        Projects designed with delivery and operations in
+        mind.
       </SectionTitle>
 
       <div className="projects">
-        {projects.map((project, i) => (
+        {projects.map((project, index) => (
           <motion.article
             className="project"
             {...reveal}
-            transition={{ delay: i * 0.08 }}
+            transition={{
+              delay: index * 0.08,
+            }}
             key={project.name}
           >
             <div>
               <p className="eyebrow">
-                0{i + 1} / {project.eyebrow}
+                0{index + 1} / {project.eyebrow}
               </p>
 
               <h3>{project.name}</h3>
@@ -585,8 +829,8 @@ function Projects() {
               <p>{project.description}</p>
 
               <div className="tags">
-                {project.stack.map((x) => (
-                  <span key={x}>{x}</span>
+                {project.stack.map((item) => (
+                  <span key={item}>{item}</span>
                 ))}
               </div>
             </div>
@@ -616,9 +860,9 @@ function Projects() {
 
 function Architecture() {
   const [selected, setSelected] =
-    useState<(typeof architectureNodes)[number] | null>(
-      null
-    )
+    useState<
+      (typeof architectureNodes)[number] | null
+    >(null)
 
   return (
     <section
@@ -626,18 +870,21 @@ function Architecture() {
       className="architecture"
     >
       <SectionTitle kicker="05 / ARCHITECTURE">
-        A cloud architecture built around clear responsibilities.
+        A cloud architecture built around clear
+        responsibilities.
       </SectionTitle>
 
       <div className="architecture-grid">
         <div className="architecture-map">
-          {architectureNodes.map((node, i) => (
+          {architectureNodes.map((node, index) => (
             <button
               key={node[0]}
-              onMouseEnter={() => setSelected(node)}
+              onMouseEnter={() =>
+                setSelected(node)
+              }
               onFocus={() => setSelected(node)}
               onClick={() => setSelected(node)}
-              className={`arch-node n${i}`}
+              className={`arch-node n${index}`}
             >
               <Cloud size={16} />
               {node[0]}
@@ -648,14 +895,17 @@ function Architecture() {
         <aside className="architecture-info">
           {selected ? (
             <>
-              <p className="eyebrow">SERVICE ROLE</p>
+              <p className="eyebrow">
+                SERVICE ROLE
+              </p>
 
               <h3>{selected[0]}</h3>
 
               <p>{selected[1]}</p>
 
               <p>
-                <b>Why it is used:</b> {selected[2]}
+                <b>Why it is used:</b>{' '}
+                {selected[2]}
               </p>
             </>
           ) : (
@@ -667,8 +917,8 @@ function Architecture() {
               <h3>Explore the system</h3>
 
               <p>
-                Hover or focus on a service to understand its
-                responsibility in the architecture.
+                Hover or click on a service to understand
+                its responsibility in the architecture.
               </p>
             </>
           )}
@@ -689,7 +939,7 @@ type Repository = {
 }
 
 function GitHubSection() {
-  const configured = !!githubUrl
+  const configured = Boolean(githubUrl)
 
   const [repos, setRepos] = useState<Repository[]>([])
   const [state, setState] = useState<
@@ -699,7 +949,7 @@ function GitHubSection() {
   useEffect(() => {
     if (!configured) return
 
-    let live = true
+    let active = true
 
     setState('loading')
 
@@ -712,26 +962,27 @@ function GitHubSection() {
           : Promise.reject()
       )
       .then((data: Repository[]) => {
-        if (live) {
+        if (active) {
           setRepos(data)
           setState('idle')
         }
       })
       .catch(() => {
-        if (live) {
+        if (active) {
           setState('error')
         }
       })
 
     return () => {
-      live = false
+      active = false
     }
   }, [configured])
 
   return (
     <section id="github">
       <SectionTitle kicker="06 / GITHUB">
-        Open-source work, configured from one place.
+        Open-source work and project development in one
+        place.
       </SectionTitle>
 
       <motion.div
@@ -749,8 +1000,8 @@ function GitHubSection() {
 
           <p>
             {configured
-              ? 'The latest public repositories load from the GitHub API; this portfolio remains useful if the API is unavailable.'
-              : 'Add VITE_GITHUB_USERNAME to .env to enable the public profile link and repository integration.'}
+              ? 'The latest public repositories are loaded from the GitHub API.'
+              : 'Configure your GitHub username to enable the profile and repository integration.'}
           </p>
         </div>
 
@@ -758,14 +1009,8 @@ function GitHubSection() {
           href={githubUrl}
           className="button"
         >
-          {configured ? (
-            <>
-              Visit GitHub
-              <ExternalLink size={15} />
-            </>
-          ) : (
-            <>Configuration required</>
-          )}
+          Visit GitHub
+          <ExternalLink size={15} />
         </External>
       </motion.div>
 
@@ -777,8 +1022,7 @@ function GitHubSection() {
 
       {state === 'error' && (
         <p className="repo-state">
-          Repository data is temporarily unavailable. Visit the
-          profile directly.
+          Repository data is temporarily unavailable.
         </p>
       )}
 
@@ -803,10 +1047,14 @@ function GitHubSection() {
               </p>
 
               <div>
-                <span>{repo.language || 'Code'}</span>
+                <span>
+                  {repo.language || 'Code'}
+                </span>
+
                 <span>
                   ★ {repo.stargazers_count}
                 </span>
+
                 <span>
                   Forks {repo.forks_count}
                 </span>
@@ -823,7 +1071,8 @@ function Certifications() {
   return (
     <section id="certifications">
       <SectionTitle kicker="07 / CREDENTIALS">
-        Foundations and demonstrated technical communication.
+        Foundations and demonstrated technical
+        communication.
       </SectionTitle>
 
       <motion.article
@@ -833,38 +1082,18 @@ function Certifications() {
         <Cloud size={25} />
 
         <div>
-          <h3>AWS Academy Cloud Foundations</h3>
+          <h3>
+            AWS Academy Cloud Foundations
+          </h3>
 
           <p>
-            Amazon Web Services. A verification link can be added
-            when available.
+            Amazon Web Services cloud foundations
+            certification.
           </p>
         </div>
 
         <span className="status">
           CERTIFICATION
-        </span>
-      </motion.article>
-
-      <motion.article
-        className="cert"
-        {...reveal}
-      >
-        <Server size={25} />
-
-        <div>
-          <h3>
-            Research presentation — ICCCNT 2025, IIT Indore
-          </h3>
-
-          <p>
-            Presented “Serverless E-Learning Platform” at the 16th
-            ICCCNT 2025.
-          </p>
-        </div>
-
-        <span className="status">
-          PRESENTATION
         </span>
       </motion.article>
     </section>
@@ -876,43 +1105,54 @@ function Contact() {
   const [sending, setSending] = useState(false)
   const [error, setError] = useState('')
 
-  const configured = isConfigured(profile.email)
-
   const handleSubmit = async (
-    e: React.FormEvent<HTMLFormElement>
+    event: React.FormEvent<HTMLFormElement>
   ) => {
-    e.preventDefault()
+    event.preventDefault()
 
     setSending(true)
     setSent(false)
     setError('')
 
-    const form = e.currentTarget
+    const form = event.currentTarget
+
+    const serviceId =
+      import.meta.env.VITE_EMAILJS_SERVICE_ID
+
+    const templateId =
+      import.meta.env.VITE_EMAILJS_TEMPLATE_ID
+
+    const publicKey =
+      import.meta.env.VITE_EMAILJS_PUBLIC_KEY
+
+    if (!serviceId || !templateId || !publicKey) {
+      setError(
+        'Email service is not configured correctly.'
+      )
+      setSending(false)
+      return
+    }
 
     try {
       await emailjs.sendForm(
-        import.meta.env.VITE_EMAILJS_SERVICE_ID,
-        import.meta.env.VITE_EMAILJS_TEMPLATE_ID,
+        serviceId,
+        templateId,
         form,
         {
-          publicKey:
-            import.meta.env.VITE_EMAILJS_PUBLIC_KEY,
+          publicKey,
         }
       )
 
       setSent(true)
       form.reset()
-    } 
-    catch (err) {
+    } catch (err) {
       console.error(
         'Email sending failed:',
         err
       )
 
       setError(
-        err instanceof Error
-      ? err.message
-      : JSON.stringify(err)
+        'Sorry, something went wrong. Please try again or email me directly.'
       )
     } finally {
       setSending(false)
@@ -928,14 +1168,15 @@ function Contact() {
       <div className="contact-grid">
         <div>
           <p className="lede">
-            Whether you are hiring, discussing a cloud project,
-            or looking to collaborate, I would be glad to connect.
+            Whether you are hiring, discussing a cloud
+            project, or looking to collaborate, I would
+            be glad to connect.
           </p>
 
           <div className="contact-links">
             <External
               href={
-                configured
+                isConfigured(profile.email)
                   ? `mailto:${profile.email}`
                   : undefined
               }
@@ -973,7 +1214,6 @@ function Contact() {
 
             <input
               required
-              type="text"
               name="name"
               autoComplete="name"
               placeholder="Your name"
@@ -1008,7 +1248,9 @@ function Contact() {
             type="submit"
             disabled={sending}
           >
-            {sending ? 'Sending...' : 'Send message'}
+            {sending
+              ? 'Sending...'
+              : 'Send message'}
 
             {!sending && (
               <ArrowUpRight size={16} />
@@ -1016,14 +1258,14 @@ function Contact() {
           </button>
 
           {sent && (
-            <p className="form-note">
-              Message sent successfully! I will get back to you
-              soon.
+            <p className="form-note success">
+              Message sent successfully! I will get back
+              to you soon.
             </p>
           )}
 
           {error && (
-            <p className="form-note">
+            <p className="form-note error">
               {error}
             </p>
           )}
@@ -1073,17 +1315,21 @@ function Footer() {
 export default function App() {
   const { scrollYProgress } = useScroll()
 
-  const [top, setTop] = useState(false)
+  const [showTop, setShowTop] =
+    useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      setTop(scrollY > 700)
+      setShowTop(window.scrollY > 700)
     }
 
-    addEventListener('scroll', handleScroll)
+    window.addEventListener(
+      'scroll',
+      handleScroll
+    )
 
     return () =>
-      removeEventListener(
+      window.removeEventListener(
         'scroll',
         handleScroll
       )
@@ -1113,7 +1359,7 @@ export default function App() {
       </main>
 
       <AnimatePresence>
-        {top && (
+        {showTop && (
           <motion.a
             initial={{
               opacity: 0,
