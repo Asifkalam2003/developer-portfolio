@@ -163,175 +163,31 @@ function Navbar() {
 }
 
 function SystemDiagram({
-  projectName,
+  diagram,
 }: {
-  projectName: string
+  diagram: readonly string[]
 }) {
-  const isELearningProject =
-    projectName.toLowerCase().includes('e-learning')
-
-  if (isELearningProject) {
-    return (
-      <div
-        className="elearning-diagram"
-        aria-label="Cloud-based e-learning platform architecture"
-      >
-        <div className="diagram-node">USER</div>
-
-        <div className="diagram-arrow">↓</div>
-
-        <div className="diagram-node">CloudFront</div>
-
-        <div className="diagram-arrow">↓</div>
-
-        <div className="diagram-node">React.js Frontend</div>
-
-        <div className="diagram-connector-label">
-          HTTPS / REST API / Socket.io
-        </div>
-
-        <div className="diagram-arrow">↓</div>
-
-        <div className="vpc-container">
-          <div className="vpc-title">AWS VPC</div>
-
-          <div className="ec2-node">
-            <strong>Amazon EC2</strong>
-            <span>Node.js + Express</span>
-            <span>REST APIs</span>
-            <span>JWT Authentication</span>
-            <span>Socket.io</span>
-          </div>
-        </div>
-
-        <div className="diagram-arrow">↓</div>
-
-        <div className="cloud-services">
-          <div className="cloud-service">
-            <strong>MongoDB</strong>
-            <span>Application Data</span>
-          </div>
-
-          <div className="cloud-service">
-            <strong>Amazon S3</strong>
-            <span>Course Assets</span>
-          </div>
-
-          <div className="cloud-service">
-            <strong>CloudWatch</strong>
-            <span>Logs &amp; Monitoring</span>
-          </div>
-        </div>
-
-        <div className="iam-section">
-          <div className="iam-line" />
-
-          <div className="iam-node">
-            <strong>IAM</strong>
-            <span>Roles &amp; Permissions</span>
-          </div>
-        </div>
-      </div>
-    )
-  }
-
-  const labels = [
-    'Internet',
-    'CloudFront',
-    'API / Application',
-    'EC2 · Lambda · API Gateway',
-    'S3 · DynamoDB',
-    'CloudWatch',
-  ]
-
   return (
     <div
       className="system-diagram"
-      aria-label="Cloud architecture diagram"
+      aria-label="Project architecture diagram"
     >
-      {labels.map((label, index) => (
-        <div key={label}>
+      {diagram.map((label, index) => (
+        <div key={`${label}-${index}`}>
           <motion.span
             className="node"
             initial={{ opacity: 0, scale: 0.92 }}
             animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.12 }}
+            transition={{ delay: index * 0.1 }}
           >
             {label}
           </motion.span>
 
-          {index < labels.length - 1 && (
+          {index < diagram.length - 1 && (
             <i className="connector" />
           )}
         </div>
       ))}
-    </div>
-  )
-}
-
-/* -----------------------------------------
-   CLOUD INFRASTRUCTURE AUTOMATION DIAGRAM
------------------------------------------ */
-
-function InfrastructureDiagram() {
-  return (
-    <div className="infra-diagram">
-      <div className="infra-node developer-node">
-        Developer
-      </div>
-
-      <div className="infra-arrow vertical-arrow">
-        ↓
-      </div>
-
-      <div className="infra-node cli-node">
-        <Terminal size={15} />
-        AWS CLI / Bash
-      </div>
-
-      <div className="infra-arrow vertical-arrow">
-        ↓
-      </div>
-
-      <div className="infra-node cloudformation-node">
-        <Cloud size={16} />
-        CloudFormation
-      </div>
-
-      <div className="infra-split">
-        <span className="split-line" />
-        <span className="split-down left" />
-        <span className="split-down center" />
-        <span className="split-down right" />
-      </div>
-
-      <div className="infra-services">
-        <div className="infra-node service-node">
-          IAM
-        </div>
-
-        <div className="infra-node service-node">
-          EC2
-        </div>
-
-        <div className="infra-node service-node">
-          S3
-        </div>
-      </div>
-
-      <div className="infra-merge">
-        <span className="merge-left" />
-        <span className="merge-right" />
-        <span className="merge-center" />
-      </div>
-
-      <div className="infra-arrow vertical-arrow">
-        ↓
-      </div>
-
-      <div className="infra-node monitoring-node">
-        CloudWatch
-      </div>
     </div>
   )
 }
@@ -622,79 +478,6 @@ function Experience() {
     </section>
   )
 }
-function GameArchitectureDiagram() {
-  return (
-    <div
-      className="game-architecture"
-      aria-label="2048 game MVC architecture"
-    >
-      <div className="game-node user-node">
-        <strong>USER</strong>
-      </div>
-
-      <div className="game-arrow">↓</div>
-
-      <div className="game-input">
-        Keyboard / Touch
-      </div>
-
-      <div className="game-arrow">↓</div>
-
-      <div className="game-node controller-node">
-        <strong>CONTROLLER</strong>
-
-        <span>
-          Input &amp; Game Actions
-        </span>
-      </div>
-
-      <div className="game-arrow">↓</div>
-
-      <div className="game-model-wrapper">
-        <div className="game-node model-node">
-          <strong>MODEL</strong>
-
-          <ul>
-            <li>Game Board</li>
-            <li>Tile Movement</li>
-            <li>Merge Logic</li>
-            <li>Score Calculation</li>
-            <li>Win / Game Over Detection</li>
-          </ul>
-        </div>
-      </div>
-
-      <div className="game-branches">
-        <div className="game-branch">
-          <span className="branch-line" />
-
-          <div className="game-node view-node">
-            <strong>VIEW</strong>
-
-            <span>HTML/CSS UI</span>
-          </div>
-
-          <div className="game-arrow">↓</div>
-
-          <div className="game-output">
-            Updated Game Board
-          </div>
-        </div>
-
-        <div className="game-branch">
-          <span className="branch-line" />
-
-          <div className="game-node storage-node">
-            <strong>LocalStorage</strong>
-
-            <span>Save Game</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
 function ProjectModal({
   project,
   close,
@@ -702,9 +485,6 @@ function ProjectModal({
   project: Project
   close: () => void
 }) {
-  const is2048Project =
-    project.name.toLowerCase().includes('2048')
-
   return (
     <motion.div
       className="overlay"
@@ -761,13 +541,9 @@ function ProjectModal({
           <aside>
             <h3>Architecture</h3>
 
-            {is2048Project ? (
-              <GameArchitectureDiagram />
-            ) : (
-              <SystemDiagram
-                projectName={project.name}
-              />
-            )}
+            <SystemDiagram
+              diagram={project.diagram}
+            />
 
             <h3 className="technology-heading">
               Technologies
