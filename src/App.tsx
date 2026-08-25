@@ -45,7 +45,7 @@ const reveal = {
 }
 
 const isConfigured = (value?: string) =>
-  Boolean(value) &&
+  !!value &&
   !value.startsWith('YOUR_') &&
   !value.includes('PASTE_')
 
