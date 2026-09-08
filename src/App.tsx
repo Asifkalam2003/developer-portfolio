@@ -45,7 +45,7 @@ const reveal = {
 }
 
 const isConfigured = (value?: string) =>
-  !!value &&
+  Boolean(value) &&
   !value.startsWith('YOUR_') &&
   !value.includes('PASTE_')
 
@@ -165,26 +165,26 @@ function Navbar() {
 function SystemDiagram({
   projectName,
 }: {
-  projectName?: string
+  projectName: string
 }) {
-  if (projectName === 'Cloud-Based E-Learning Platform') {
+  const isELearningProject =
+    projectName.toLowerCase().includes('e-learning')
+
+  if (isELearningProject) {
     return (
-      <div className="elearning-diagram">
-        <div className="diagram-node">
-          USER
-        </div>
+      <div
+        className="elearning-diagram"
+        aria-label="Cloud-based e-learning platform architecture"
+      >
+        <div className="diagram-node">USER</div>
 
         <div className="diagram-arrow">↓</div>
 
-        <div className="diagram-node">
-          CloudFront
-        </div>
+        <div className="diagram-node">CloudFront</div>
 
         <div className="diagram-arrow">↓</div>
 
-        <div className="diagram-node">
-          React.js Frontend
-        </div>
+        <div className="diagram-node">React.js Frontend</div>
 
         <div className="diagram-connector-label">
           HTTPS / REST API / Socket.io
@@ -193,13 +193,10 @@ function SystemDiagram({
         <div className="diagram-arrow">↓</div>
 
         <div className="vpc-container">
-          <div className="vpc-title">
-            AWS VPC
-          </div>
+          <div className="vpc-title">AWS VPC</div>
 
           <div className="ec2-node">
             <strong>Amazon EC2</strong>
-
             <span>Node.js + Express</span>
             <span>REST APIs</span>
             <span>JWT Authentication</span>
@@ -212,20 +209,17 @@ function SystemDiagram({
         <div className="cloud-services">
           <div className="cloud-service">
             <strong>MongoDB</strong>
-
             <span>Application Data</span>
           </div>
 
           <div className="cloud-service">
             <strong>Amazon S3</strong>
-
             <span>Course Assets</span>
           </div>
 
           <div className="cloud-service">
             <strong>CloudWatch</strong>
-
-            <span>Logs & Monitoring</span>
+            <span>Logs &amp; Monitoring</span>
           </div>
         </div>
 
@@ -234,37 +228,43 @@ function SystemDiagram({
 
           <div className="iam-node">
             <strong>IAM</strong>
-
-            <span>Roles & Permissions</span>
+            <span>Roles &amp; Permissions</span>
           </div>
         </div>
       </div>
     )
   }
 
+  const labels = [
+    'Internet',
+    'CloudFront',
+    'API / Application',
+    'EC2 · Lambda · API Gateway',
+    'S3 · DynamoDB',
+    'CloudWatch',
+  ]
+
   return (
-    <div className="system-diagram">
-      <div>
-        <div className="node">USER</div>
+    <div
+      className="system-diagram"
+      aria-label="Cloud architecture diagram"
+    >
+      {labels.map((label, index) => (
+        <div key={label}>
+          <motion.span
+            className="node"
+            initial={{ opacity: 0, scale: 0.92 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: index * 0.12 }}
+          >
+            {label}
+          </motion.span>
 
-        <span className="connector" />
-
-        <div className="node">
-          Application
+          {index < labels.length - 1 && (
+            <i className="connector" />
+          )}
         </div>
-
-        <span className="connector" />
-
-        <div className="node">
-          Core Services
-        </div>
-
-        <span className="connector" />
-
-        <div className="node">
-          Storage / Monitoring
-        </div>
-      </div>
+      ))}
     </div>
   )
 }
@@ -694,6 +694,7 @@ function GameArchitectureDiagram() {
     </div>
   )
 }
+
 function ProjectModal({
   project,
   close,
@@ -764,7 +765,7 @@ function ProjectModal({
               <GameArchitectureDiagram />
             ) : (
               <SystemDiagram
-              projectName={project.name}
+                projectName={project.name}
               />
             )}
 
